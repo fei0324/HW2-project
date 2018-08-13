@@ -1,9 +1,11 @@
 # candidates models.py
 
 from django.db import models
+from django.urls import reverse
+from django.db.models.signals import post_save
+#from django.dispatch import receiver
+
 from all_users.models import User
-from django.db.models.signals import pre_save
-from django.dispatch import receiver
 
 class Candidate_Profile(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
@@ -15,10 +17,29 @@ class Candidate_Profile(models.Model):
 	def __str__(self):
 		return self.user.username
 
+	# Need to edit this save method
+	# self.user should be the user with the same username
+	def save(self):
+		pass 
+
+	def get_absolute_url(self):
+		return reverse('candidates:profile-detail')
+
+
 # Everytime a user signs up and choses user type candidate
 # it automatically creats a candidate profile
-def save_signal(sender, instance, created, **kwargs):
-	if created and is_candidate:
-		instance.save()
+def create_candidate_profile(sender, instance, created, **kwargs):
 
-models.signals.pre_save.connect(save_signal, Candidate_Profile)
+	if created and instance.is_candidate:
+		print("Creating candidate profile")
+		Candidate_Profile.objects.create(user=instance)
+		print("Candidate profile created.")
+
+post_save.connect(create_candidate_profile, sender=User)
+
+def save_candidate_profile(sender, instance, **kwargs):
+	print("Saving candidate profile.")
+	instance.candidate_profile.save()
+	print("Candidate profile saved.")
+
+post_save.connect(save_candidate_profile, sender=User)

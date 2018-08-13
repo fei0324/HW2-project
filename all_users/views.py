@@ -1,3 +1,5 @@
+# all_users views.py
+
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView, CreateView
 from django.urls import reverse, reverse_lazy
@@ -9,7 +11,7 @@ from all_users.forms import UserSignUpForm, CustomLoginForm
 
 class SignUp(CreateView):
 	form_class = UserSignUpForm
-	success_url = reverse_lazy('login')
+	success_url = reverse_lazy('all_users:login')
 	template_name = 'all_users/signup.html'
 
 def CustomLoginView(request):
@@ -20,11 +22,11 @@ def CustomLoginView(request):
 			if user.is_candidate:
 				login(request, user)
 				print("user is logged in.")
-				return HttpResponseRedirect(reverse('test_candidate'))
+				return HttpResponseRedirect(reverse('all_users:test_candidate'))
 			elif user.is_employer:
 				login(request, user)
 				print("user is logged in.")
-				return HttpResponseRedirect(reverse('test_employer'))
+				return HttpResponseRedirect(reverse('all_users:test_employer'))
 	return render(request, 'all_users/login.html', {'login_form': form})
 
 class TestCandidatePage(TemplateView):
